@@ -11,6 +11,8 @@ from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
+import settings
+from settings import CLIENT_SECRET_FILE, SCOPES, APPLICATION_NAME
 
 import datetime #Used for post_dailies() function.
 from datetime import date
@@ -30,7 +32,7 @@ favorites_dict = {}
 alert_dict = {}
 cookie = {'commonWebPath':'/web',
 'localWebPath':'/english/web',
-'language':'en', 'GPVLU':'6187d9c913cf5283d676c3e68aea987e42e4e6804b83d5d78598fe035613d53f6d05c48cc001b6ef530b756b44c469c66c11240bb36528624a1a222355efd1d24a1a222355efd1d24a1a222355efd1d24a1a222355efd1d24a1a222355efd1d24a1a222355efd1d24a1a222355efd1d24a1a222355efd1d24a1a222355efd1d24a1a222355efd1d24a1a222355efd1d24a1a222355efd1d24a1a222355efd1d24a1a222355efd1d24a1a222355efd1d2e65c752e0aed4114c1863113b5812c1ec33040840c6f226181e2a8484d1a405133f9f92265f3d85d5b38ec544a8ec704e6c02f49d380d3f86e5e0be669742462e41c10af7941cfa99ad3bf300b8b34db',
+'language':'en', 'GPVLU': settings.GPVLU,
 'SessionIndex':'1'
 }
 
@@ -267,7 +269,7 @@ class tasks:
 
 	async def spreadsheet_task(self):
 		""" Grabs values from raid rosters on Google Sheets and updates discord roles for their specific raid. """
-		server_id = "317150426103283712"
+		server_id = settings.BOT_BASE_SERVER_ID
 		VT_role_id = "381753872206790659"
 		BTA_role_id = "395774727257325568"
 		BTB_role_id = "395784674674475009"
@@ -374,14 +376,14 @@ class tasks:
 				member = self.make_member(str(entry)[2:-2])
 				roster.append(member)
 				server = self.bot.get_server(server_id)
-				schlong = discord.utils.get(server.members, id = '217513859412525057')
+				schlong = discord.utils.get(server.members, id = settings.BOT_USER_ID)
 				await self.bot.send_message(schlong, "Missing discord ID for " + str(entry))
 				index += 1
 			elif index >= len(response_id['values']):
 				member = self.make_member(str(entry)[2:-2])
 				roster.append(member)
 				server = self.bot.get_server(server_id)
-				schlong = discord.utils.get(server.members, id = '217513859412525057')
+				schlong = discord.utils.get(server.members, id = settings.BOT_USER_ID)
 				await self.bot.send_message(schlong, "Missing discord ID for " + str(entry))
 				index += 1
 			else:
@@ -398,7 +400,7 @@ class tasks:
 						if raid_role_id == roles.id:
 							await self.bot.remove_roles(raider, roles)
 				else:
-					schlong = discord.utils.get(server.members, id = '217513859412525057')
+					schlong = discord.utils.get(server.members, id = settings.BOT_USER_ID)
 					await self.bot.send_message(schlong, "Couldn't find " + guildie.ign + " in server. Could have left guild.")
 		return True
 
@@ -417,7 +419,7 @@ class tasks:
 						found = True
 						break
 				if found == False:
-					schlong = discord.utils.get(server.members, id = '217513859412525057')
+					schlong = discord.utils.get(server.members, id = settings.BOT_USER_ID)
 					await self.bot.send_message(schlong, "On the roster, but couldn't add role for " + str(BT) + "Raid ID: " + raid_role_id)
 		except:
 			print("Empty raid roster or response_raid wasn't requested correctly.")
@@ -426,7 +428,7 @@ class tasks:
 
 	async def post_dailies(self):
 		dailies_channel_id = "370276401615732736"
-		server_id = "317150426103283712"
+		server_id = settings.BOT_BASE_SERVER_ID
 		bot_id = "393162340234952715"
 		dailies = [
 		#Sunday
@@ -503,9 +505,9 @@ class tasks:
 
 	async def schedule_session_refresh(self):
 		refresh_interval = 1800 # Refreshes every half hour
-		server_id = "317150426103283712"
+		server_id = settings.BOT_BASE_SERVER_ID
 		server = discord.utils.get(self.bot.servers, id = server_id)
-		schlong = discord.utils.get(server.members, id = '217513859412525057')
+		schlong = discord.utils.get(server.members, id = settings.BOT_USER_ID)
 		numbering = ["<:1_:403077593513066496>", "<:2_:403077593273991170>", "<:3_:403077593198362627>"]
 
 		URL = "http://na-bnsmarket.ncsoft.com/bns/bidder/home.web?npc=false"
@@ -622,7 +624,7 @@ class tasks:
 			return False
 
 	async def sonny_emotes(self):
-		server_id = "317150426103283712"
+		server_id = settings.BOT_BASE_SERVER_ID
 		sonny_id = "171018837142142977"
 		reactions = ["sonnyThump:335165940469727242", "tsunny:336453298385059840"]
 
@@ -636,10 +638,12 @@ class tasks:
 
 
 	async def on_ready(self):
-		self.bot.loop.create_task(self.get_favorites_dict())
+		if os.path.exists('favorites_dict.txt'):
+			self.bot.loop.create_task(self.get_favorites_dict())
 		self.bot.loop.create_task(self.scheduled_price_alerts())
 		self.bot.loop.create_task(self.schedule_session_refresh())
-		self.bot.loop.create_task(self.spreadsheet_task())
+		if CLIENT_SECRET_FILE is not None:
+			self.bot.loop.create_task(self.spreadsheet_task())
 		self.bot.loop.create_task(self.sonny_emotes())
 		self.bot.loop.create_task(self.schedule_dailies())
 

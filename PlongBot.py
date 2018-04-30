@@ -1,6 +1,8 @@
 from discord.ext import commands
 import discord
 import platform
+import os
+import settings
 
 # this specifies what extensions to load when the bot starts up
 startup_extensions = ["tasks", "commands"]
@@ -28,4 +30,5 @@ if __name__ == "__main__":
 			exc = '{}: {}'.format(type(e).__name__, e)
 			print('Failed to load extension {}\n{}'.format(extension, exc))
 
-	bot.run('token')
+	print("token: " + settings.DISCORD_BOT_TOKEN)
+	bot.run(settings.DISCORD_BOT_TOKEN)
