@@ -1,7 +1,7 @@
 from pathlib import Path
 from dotenv import load_dotenv
 import os
-load_dotenv(dotenv_path=Path('.') / '.env')
+load_dotenv(dotenv_path='.env')
 DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN')
 CLIENT_SECRET_FILE = os.getenv('CLIENT_SECRET_FILE')
 SCOPES = os.getenv('SCOPES', '')
