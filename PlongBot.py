@@ -6,6 +6,19 @@ import settings
 from http.server import HTTPServer
 from http.server import BaseHTTPRequestHandler
 from http import HTTPStatus
+import asyncio
+from aiohttp import web
+from threading import Thread
+
+async def handle(request):
+    name = request.match_info.get('name', "Anonymous")
+    text = "Hello, " + name
+    return web.Response(text=text)
+
+app = web.Application()
+app.router.add_get('/', handle)
+app.router.add_get('/{name}', handle)
+
 
 # this specifies what extensions to load when the bot starts up
 startup_extensions = ["tasks", "commands"]
@@ -28,22 +41,8 @@ async def on_ready():
 	await bot.change_presence(game=discord.Game(name='with my life'))
 
 
-class MyHandler(BaseHTTPRequestHandler):
-
-	def do_GET(self):
-		self.send_response(HTTPStatus.OK)
-		self.send_header('Content-type', 'text/html')
-		self.end_headers()
-		self.wfile.write(b'Hello, Python!')
-		return
-
-
-def run_http_server(server_class=HTTPServer, handler_class=MyHandler):
-	server_address = ('0.0.0.0', settings.PORT)
-	httpd = server_class(server_address, handler_class)
-	print("Server works on http://localhost:" + str(settings.PORT))
-	httpd.serve_forever()
-
+def run_web_app():
+	web.run_app(app, port=settings.PORT)
 
 if __name__ == "__main__":
 	for extension in startup_extensions:
@@ -54,5 +53,7 @@ if __name__ == "__main__":
 			print('Failed to load extension {}\n{}'.format(extension, exc))
 
 	print("token: " + settings.DISCORD_BOT_TOKEN)
-	run_http_server()
+	thread = Thread(target = run_web_app)
+	thread.start()
 	bot.run(settings.DISCORD_BOT_TOKEN)
+	thread.join()
