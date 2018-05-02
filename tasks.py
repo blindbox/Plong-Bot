@@ -644,7 +644,7 @@ class tasks:
 		self.bot.loop.create_task(self.schedule_session_refresh())
 		if CLIENT_SECRET_FILE is not None:
 			self.bot.loop.create_task(self.spreadsheet_task())
-		self.bot.loop.create_task(self.sonny_emotes())
+		# self.bot.loop.create_task(self.sonny_emotes())
 		self.bot.loop.create_task(self.schedule_dailies())
 
 def setup(bot):
