@@ -41,7 +41,7 @@ class MyHandler(BaseHTTPRequestHandler):
 def run_http_server(server_class=HTTPServer, handler_class=MyHandler):
 	server_address = ('localhost' if settings.PROJECT_DOMAIN is None else settings.PROJECT_DOMAIN + '.glitch.me', settings.PORT)
 	httpd = server_class(server_address, handler_class)
-	print("Server works on http://localhost:" + settings.PORT)
+	print("Server works on http://localhost:" + str(settings.PORT))
 	httpd.serve_forever()
 
 
