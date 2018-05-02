@@ -1,1 +1,1 @@
-python PlongBot.py
+python3 PlongBot.py
