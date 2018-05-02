@@ -7,7 +7,6 @@ from random import * # Used for roll, coin, and 8ball
 from pprint import pprint
 from googleapiclient import discovery
 import os
-from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
